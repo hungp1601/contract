@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Negotiation Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .game-container {
+            position: relative;
+            width: 800px;
+            height: 500px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .notebook {
+            position: absolute;
+            right: 150px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 100px;
+            color: #3a3a3a;
+            z-index: 1;
+        }
+
+        .pen {
+            position: absolute;
+            left: 150px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 80px;
+            color: #2c3e50;
+            transition: left 0.3s ease;
+            z-index: 2;
+        }
+
+        .slider-container {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .salary-slider {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .salary-display {
+            margin-top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .success-contract {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 10;
+        }
+
+        .success-contract h2 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .success-contract p {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .signature-line {
+            width: 80%;
+            height: 2px;
+            background-color: #333;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="notebook">
+            <i class="far fa-sticky-note"></i>
+        </div>
+
+        <div class="pen">
+            <i class="fas fa-pen-fancy"></i>
+        </div>
+
+        <div class="slider-container">
+            <input type="range" min="5" max="100" value="100" step="1" class="salary-slider" id="salarySlider">
+            <div class="salary-display">Mức lương mong muốn: <span id="salaryAmount">5.0</span> triệu</div>
+        </div>
+
+        <div class="success-contract" id="successContract">
+            <h2><i class="fas fa-check-circle"></i> Contract Signed!</h2>
+            <p>Chúc mừng! Bạn đã kí thành công.</p>
+            <div class="signature-line"></div>
+            <p><i class="fas fa-handshake"></i> Deal completed</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const salarySlider = document.getElementById('salarySlider');
+            const salaryAmount = document.getElementById('salaryAmount');
+            const pen = document.querySelector('.pen');
+            const successContract = document.getElementById('successContract');
+            const notebook = document.querySelector('.notebook');
+
+            // Get the actual position of the notebook
+            const notebookRect = notebook.getBoundingClientRect();
+            const containerRect = document.querySelector('.game-container').getBoundingClientRect();
+            const notebookPosition = notebookRect.left - containerRect.left;
+
+            // Initial pen position
+            const initialPenLeft = 150;
+
+            // Calculate notebook position (adjusted for pen size to meet at center)
+            const targetPenPosition = notebookPosition; // Adjust as needed to center pen on notebook
+
+            salarySlider.addEventListener('input', function () {
+                const salary = parseFloat(this.value).toFixed(1);
+                salaryAmount.textContent = salary;
+
+                // Reverse the slider logic - lowest value (5) should move pen to notebook
+                // Map slider value from 5-100 to pen position
+                const sliderRange = 80; // Total range of slider
+                const sliderPosition = (salary - 5) / sliderRange; // Normalized position (0-1)
+
+                // Calculate pen position - when salary is 5, pen should be at notebook
+                // As salary increases, pen should move away from notebook
+                const penPosition = targetPenPosition + (sliderPosition * (initialPenLeft - targetPenPosition));
+
+                pen.style.left = penPosition + 'px';
+
+                // Show success contract when salary is exactly 5
+                if (salary == 5.0) {
+                    successContract.style.display = 'block';
+                } else {
+                    successContract.style.display = 'none';
+                }
+            });
+
+            // Trigger the input event to set initial position
+            salarySlider.dispatchEvent(new Event('input'));
+        });
+    </script>
+</body>
+
+</html>
